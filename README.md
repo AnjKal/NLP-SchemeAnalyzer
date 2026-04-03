@@ -1,28 +1,28 @@
-# Vidhik AI: Demystifying Legal Documents for Everyone
+# Vidhik AI: Understanding Government Poverty Relief Schemes for Everyone
 
 ## 1. Vision, Social Impact & Feasibility
 
 ### The Problem Our Solution Addresses
 
-In India, millions of people from students renting their first apartment to small business owners signing service agreements enter into legally binding contracts without fully understanding the terms. This lack of comprehension stems from two significant barriers:
+In India, millions of people from low-income households to small business owners struggle to access and understand government poverty relief schemes. This lack of comprehension stems from two significant barriers:
 
-1.  **Complex Legal Jargon:** Legal documents are filled with technical language that is impenetrable to the average person.
-2.  **The Language Divide:** A vast number of contracts are written exclusively in English, a language not accessible to a large portion of the Indian population, which is multilingual and diverse.
+1.  **Complex Government Terminology:** Government poverty relief scheme documents are filled with technical language, eligibility criteria, and procedural requirements that are impenetrable to the average person.
+2.  **The Language Divide:** A large portion of government documents are written exclusively in English, a language not accessible to a large portion of the Indian population, which is multilingual and diverse.
 
-This information gap puts individuals at a severe disadvantage, exposing them to financial risks, unfair obligations, and potential exploitation. The cost of hiring a lawyer to review routine documents is prohibitive for the vast majority, creating a critical need for accessible, first-line legal support.
+This information gap puts individuals at a severe disadvantage, preventing them from accessing benefits they are eligible for and missing critical deadlines. The cost of seeking government guidance or legal consultation is prohibitive for the vast majority, creating a critical need for accessible, first-line support in understanding government schemes.
 
 ### Our Vision & Positive Impact
 
-**Vidhik AI** is an intelligent legal assistant designed to empower the common person by making legal documents simple, accessible, and understandable.
+**Vidhik AI** is an intelligent government document analyzer designed to empower the common person by making poverty relief scheme documents simple, accessible, and understandable.
 
-Our vision is to **create a future where no one is disadvantaged by a contract they couldn't comprehend.** By using the power of Generative AI, Vidhik AI acts as a private, secure, and insightful legal companion. It translates dense legal text into plain, simple English, proactively flags potential risks, and answers specific questions in a conversational manner.
+Our vision is to **create a future where no one is disadvantaged by a government scheme document they couldn't comprehend.** By using the power of Generative AI, Vidhik AI acts as a private, secure, and insightful companion. It translates dense government text into plain, simple English, proactively identifies eligibility criteria and deadlines, and answers specific questions in a conversational manner.
 
 This vision directly aligns with the focus area of **empowering people with access to information and opportunity**. Vidhik AI achieves this by:
 
-*   **Promoting Financial & Legal Literacy:** By demystifying contracts, we help people understand their financial commitments (like rent, loans, and service fees) and legal rights.
-*   **Reducing Financial Risk:** By flagging potentially harmful clauses and unclear deadlines, it helps users avoid costly mistakes and unfair agreements before they are signed.
+*   **Promoting Government & Social Welfare Literacy:** By clarifying scheme documents, we help people understand their eligibility, benefits, deadlines, and requirements for various government poverty relief schemes.
+*   **Reducing Missed Opportunities:** By extracting key deadlines and eligibility criteria, it helps users identify schemes they qualify for and ensures they don't miss critical submission dates.
 *   **Bridging the Language Divide:** Our AI is designed to understand documents in major Indian regional languages. A user can upload a document in their native tongue and receive a clear, structured analysis in simple English, breaking down a significant barrier to comprehension.
-*   **Democratizing Legal Understanding:** We provide a free, accessible tool that offers the kind of initial document analysis typically reserved for those who can afford legal counsel. This empowers students, gig-economy workers, renters, and small business owners to make informed decisions with confidence.
+*   **Democratizing Access to Government Information:** We provide a free, accessible tool that helps citizens understand government poverty relief programs without needing paid consultation. This empowers low-income individuals, students, gig-economy workers, and small business owners to access government support with confidence.
 
 ### Feasibility and Scalability
 
@@ -35,41 +35,41 @@ The project is highly feasible and built for scale:
 
 ### How is Vidhik AI different from existing solutions?
 
-While other document analysis tools exist, Vidhik AI is uniquely positioned for the Indian context:
+While other document analysis tools exist, Vidhik AI is uniquely positioned for analyzing government poverty relief schemes in the Indian context:
 
-*   **Hyper-Localized & Multilingual:** Our primary differentiator is the deep integration of multilingual capabilities. Users can upload a document in a regional Indian language and receive analysis in simple English, breaking down barriers that generic tools cannot.
-*   **Privacy-First with OCR:** Recognizing that many older documents exist only as physical copies, Vidhik AI includes OCR to extract text from scanned images. Crucially, it also automatically detects and masks Personally Identifiable Information (PII) for user privacy.
-*   **Action-Oriented & Interactive:** We go beyond simple summarization. The "Jargon Buster," categorized "Risk Analysis," and the ability to export deadlines to a calendar provide actionable insights. The conversational Q&A turns a static report into a personalized legal consultation.
-*   **Full Session Management:** The platform provides a complete user experience with secure authentication, persistent session history, and a document gallery for easy access to past work.
+*   **Hyper-Localized & Multilingual:** Our primary differentiator is the deep integration of multilingual capabilities. Users can upload a government scheme document in a regional Indian language and receive analysis in simple English, breaking down barriers that generic tools cannot.
+*   **Privacy-First with OCR:** Recognizing that many government documents exist only as physical copies, Vidhik AI includes OCR to extract text from scanned images. Crucially, it also automatically detects and masks Personally Identifiable Information (PII) for user privacy.
+*   **Action-Oriented & Interactive:** We go beyond simple summarization. The "Simple Explanation," "Eligibility & How to Apply," and the ability to export deadlines to a calendar provide actionable insights. The conversational Q&A turns a static report into a personalized government scheme consultation.
+*   **Full Session Management:** The platform provides a complete user experience with secure authentication, persistent session history, and a document gallery for easy access to past government documents.
 
 ### USP (Unique Selling Proposition)
 
-**Vidhik AI is the first privacy-centric legal assistant designed for India's linguistic diversity, transforming complex legal documents in any major regional language or even scanned images into simple, actionable insights that anyone can understand and act upon with confidence.**
+**Vidhik AI is the first privacy-centric government document analyzer designed for India's linguistic diversity, transforming complex government poverty relief scheme documents in any major regional language or even scanned images into simple, actionable insights that anyone can understand and act upon with confidence.**
 
 ## 3. Project Functionalities & Features
 
 ### Brief About the Prototype
-The prototype is a fully functional web application that allows users to sign up, log in, and access the core features of Vidhik AI. When a user uploads a document, the system processes it and transforms the interface into a multi-tab view displaying the **Summary, Risk Analysis, Jargon Buster, and Original Document**. This dashboard also enables users to **chat with their document**, asking specific questions to get instant, context-aware answers.
+The prototype is a fully functional web application that allows users to sign up, log in, and access the core features of Vidhik AI. When a user uploads a government poverty relief scheme document, the system processes it and transforms the interface into a multi-tab view displaying the **Scheme Overview, Simple Explanation, Eligibility & How to Apply, Common Issues / Rejections, and Original Document**. This dashboard also enables users to **chat with their document**, asking specific questions to get instant, context-aware answers.
 
 ### 1. AI Document Helper
-*   **Flexible Document Input:** Supports uploading text-based files (`.txt`, `.pdf`, `.docx`), direct text pasting, and image uploads (`.png`, `.jpg`) for scanned documents.
+*   **Flexible Document Input:** Supports uploading text-based files (`.txt`, `.pdf`, `.docx`), direct text pasting, and image uploads (`.png`, `.jpg`) for scanned government documents.
 *   **OCR & PII Masking:** For image-based uploads, automatically extracts text and masks sensitive personal information to protect user privacy.
 *   **Multilingual Analysis:** Accepts documents in English and major Indian regional languages, with all output provided in clear English.
 *   **Multi-Tab Analysis Report:**
-    *   **Feature Summary:** A high-level overview in markdown.
-    *   **Risk Analysis:** Identifies and categorizes risks (High, Medium, Low). Users can manually adjust the risk level for any clause.
-    *   **Jargon Buster:** A glossary of complex legal terms with simple definitions.
-    *   **Obligations & Deadlines:** Extracts key dates and allows for calendar export (`.ics` file).
+    *   **Scheme Overview:** A high-level overview of the scheme's purpose and main benefits in markdown.
+    *   **Simple Explanation:** Explains key scheme terms and concepts in simple language.
+    *   **Eligibility & How to Apply:** Extracts eligibility requirements, application procedures, and important dates/deadlines.
+    *   **Common Issues / Rejections:** Identifies common reasons why applications get rejected and issues beneficiaries face.
     *   **Original Document:** A viewer for the original file.
 *   **Conversational Q&A (RAG Implementation):**
     *   An interactive chat interface is available after the initial analysis.
     *   This feature uses **Retrieval-Augmented Generation (RAG)**. When a user asks a question, the full text of their document is passed to **Amazon Nova Lite via Amazon Bedrock** as the primary context.
-    *   This forces the AI to generate answers *exclusively* from the provided document, preventing it from inventing information or using external knowledge. This ensures that the answers are highly relevant and grounded in the user's specific legal text.
+    *   This forces the AI to generate answers *exclusively* from the provided document, preventing it from inventing information or using external knowledge. This ensures that the answers are highly relevant and grounded in the user's specific government scheme document.
 *   **Download Original:** Allows users to download the original document they uploaded.
 
-### 2. Compare Documents
-*   **Side-by-Side Upload:** An interface to upload two document versions for comparison.
-*   **Detailed Difference Report:** Generates a report of **New Clauses**, **Changed Terms**, and **Deleted Clauses**, explaining the practical impact of each modification.
+### 2. Compare Schemes
+*   **Side-by-Side Upload:** An interface to upload two versions of a government poverty relief scheme document for comparison.
+*   **Detailed Difference Report:** Generates a report of **New Provisions**, **Changed Terms**, and **Deleted Provisions**, explaining the practical impact of each modification on eligibility, benefits, and requirements.
 
 ### 3. User & Session Management
 *   **Secure Authentication:** Users can sign up and log in with email and password via **Amazon Cognito**.
@@ -77,7 +77,7 @@ The prototype is a fully functional web application that allows users to sign up
 *   **My Documents:** A gallery of all unique documents a user has ever uploaded, allowing for quick access to start new analysis sessions.
 
 ### 4. Information & FAQ
-*   A dedicated, accessible page explaining all features, answering common questions, and detailing the "how-to" of the application to ensure users can get the most out of the platform.
+*   A dedicated, accessible page explaining all features of the government poverty relief scheme analyzer, answering common questions about how to use the platform, and clarifying what types of government documents can be analyzed.
 
 ## 4. Technical Implementation & Architecture
 
@@ -442,55 +442,55 @@ The application is containerized and deployed to **AWS ECS Fargate**. Refer to [
 
 ### Testing Scenarios
 
-#### Scenario 1: Demystify a Scanned Rental Agreement (Image/OCR)
+#### Scenario 1: Analyze a Government Poverty Relief Scheme Document (Image/OCR)
 
 1.  **Navigate:** From the sidebar, ensure you are on the **"AI Document Helper"** screen.
-2.  **Upload Image:** Use the **"Scanned/Image"** tab to upload an image of a sample rental agreement.
+2.  **Upload Image:** Use the **"Scanned/Image"** tab to upload an image of a sample government poverty relief scheme document (e.g., MGNREGA, PM-KISAN, Ayushman Bharat guideline).
 3.  **Analyze:** Click "Demystify Document". The analysis will start automatically after the upload.
 4.  **Review the Report:**
-    *   Check the **"Feature Summary"** tab for a clear, high-level overview.
-    *   Go to the **"Risk Analysis"** tab. Note the AI-assigned risk levels. **Change the risk level** for one of the clauses from "Medium" to "High" using the dropdown.
-    *   Explore the **"Jargon Buster"** to understand complex terms.
-    *   Visit the **"Obligations & Deadlines"** tab. Click **"Export to Calendar"** to download an `.ics` file.
+    *   Check the **"Scheme Overview"** tab for a clear, high-level overview of the scheme.
+    *   Go to the **"Eligibility & How to Apply"** tab. Click **"Export Deadlines"** to download an `.ics` file of important application dates.
+    *   Explore the **"Simple Explanation"** tab to understand scheme-specific terms and concepts.
+    *   Visit the **"Common Issues / Rejections"** tab to learn about common reasons applications get rejected.
     *   Click the **"Original Document"** tab to see the image you uploaded.
 5.  **Ask Questions (RAG in action):**
-    *   The chat interface will now be active. Ask a specific question about the document, for example:
-        *   "What is the notice period for terminating the lease?"
-        *   (In Hinglish) "Security deposit kab wapas milega?"
+    *   The chat interface will now be active. Ask a specific question about the scheme, for example:
+        *   "What is the maximum age limit to apply for this scheme?"
+        *   (In Hinglish) "Application deadline kya hai aur documents kaunse chahiye?"
     *   Verify that the AI provides a relevant answer based on the document's content.
 
-#### Scenario 2: Analyze a Text-Based Document (PDF/DOCX)
+#### Scenario 2: Analyze a Government Scheme Document (PDF/DOCX)
 
 1.  **Navigate:** Click "New Session" if needed, and select **"AI Document Helper"**.
-2.  **Upload File:** In the **"Upload File"** tab, upload a text-based document like a `.pdf` or `.docx` file of a sample contract.
-3.  **Analyze & Review:** Click "Demystify Document" and review the generated **Summary** and **Risk Analysis**.
+2.  **Upload File:** In the **"Upload File"** tab, upload a text-based government scheme document like a `.pdf` or `.docx` file (e.g., scheme guideline, notification, or handbook).
+3.  **Analyze & Review:** Click "Demystify Document" and review the generated **Scheme Overview** and **Eligibility & How to Apply** tabs.
 
-#### Scenario 3: Analyze a Pasted Text Snippet
+#### Scenario 3: Analyze a Pasted Government Scheme Text
 
 1.  **Navigate:** Click "New Session" and choose **"AI Document Helper"**.
-2.  **Paste Text:** Select the **"Paste Text"** tab. Copy and paste a few paragraphs of any legal text (e.g., from a website's terms of service).
+2.  **Paste Text:** Select the **"Paste Text"** tab. Copy and paste a few paragraphs of any government poverty relief scheme text (e.g., from an official government notification or scheme guidelines).
 3.  **Analyze:** Click the **"Demystify Text"** button.
-4.  **Review:** Briefly review the generated **Summary** and **Risk Analysis**.
+4.  **Review:** Briefly review the generated **Scheme Overview** and **Eligibility & How to Apply**.
 
-#### Scenario 4: Compare Two Versions of a Contract
+#### Scenario 4: Compare Two Versions of a Government Scheme
 
 1.  **Navigate:** Click **"Compare Documents"** in the sidebar.
 2.  **Upload Documents:**
-    *   In the "Document A" slot, upload an original contract file (e.g., a `.docx` or `.pdf`).
-    *   In the "Document B" slot, upload a modified version of the same contract (e.g., change the rent amount, add a new clause, or remove one).
+    *   In the "Document A" slot, upload an original version of a government poverty relief scheme document (e.g., a `.docx` or `.pdf` of the 2023 guideline).
+    *   In the "Document B" slot, upload an updated version of the same scheme (e.g., the 2024 updated guideline with changed eligibility criteria or modified benefits).
 3.  **Compare:** Click the **"Compare Documents"** button.
 4.  **Review the Comparison Report:**
-    *   Examine the generated report which should clearly list any **New Clauses**, **Changed Terms**, and **Deleted Clauses** in the accordion sections.
+    *   Examine the generated report which should clearly list any **New Provisions**, **Changed Terms**, and **Deleted Provisions** with explanations of how these changes affect eligibility or benefits.
 
 #### Scenario 5: Check History and My Documents
 
-1.  **View History:** After performing the tests above, click the **History icon** in the top-right corner of the header. The side panel should show a list of your recent sessions.
+1.  **View History:** After performing the tests above, click the **History icon** in the top-right corner of the header. The side panel should show a list of your recent government scheme analysis sessions.
 2.  **Switch Sessions:** Click on a previous session in the history panel. The application state should update to show the documents and results from that session.
 3.  **Navigate:** Click **"My Documents"** in the main sidebar.
-4.  **Verify:** You should see cards representing each unique document you uploaded during your testing. Clicking on one of these cards will start a new "AI Document Helper" session with that document.
+4.  **Verify:** You should see cards representing each unique government scheme document you uploaded during your testing. Clicking on one of these cards will start a new "AI Document Helper" session with that document.
 
 #### Scenario 6: Explore the Info & FAQ page
 
 1.  **Navigate:** Click **"Info & FAQ"** in the main sidebar.
-2.  **Review:** Read through the feature descriptions and frequently asked questions to understand the full capabilities of the application.
-3.  **Test CTA:** Click one of the "Try Vidhik Now" or "Get Started" buttons, which should open the "New Session" dialog.
+2.  **Review:** Read through the feature descriptions focused on government poverty relief scheme analysis and frequently asked questions to understand what types of scheme documents Vidhik can analyze.
+3.  **Test CTA:** Click one of the "Try Vidhik Now" or "Get Started" buttons, which should open the "New Session" dialog to analyze a government scheme document.
