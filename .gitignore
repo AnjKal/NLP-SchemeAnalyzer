@@ -87,3 +87,9 @@ gcloud-service-key.json
 *.yml
 *.sh
 
+_pycache__/
+__pycache__/
+__pycache__
+venv/
+env/
+_pycache__/
