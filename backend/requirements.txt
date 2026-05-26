@@ -1,0 +1,6 @@
+fastapi
+uvicorn[standard]
+boto3
+pdfplumber
+python-dotenv
+neo4j
