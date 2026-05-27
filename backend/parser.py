@@ -48,8 +48,17 @@ def extract_scheme_data(pdf_path):
     for i, line in enumerate(lines):
         if "Gender" in line:
             for j in range(i + 1, min(i + 4, len(lines))):
-                if lines[j].strip() and "" in lines[j]:
-                    gender_value = lines[j].replace("", "").strip()
+                raw = lines[j].strip()
+                if not raw:
+                    continue
+                low = raw.lower()
+                if any(k in low for k in ('female', 'women', 'bride', 'girl')):
+                    gender_value = 'Female'
+                elif any(k in low for k in ('male', 'men', 'boy', 'husband')):
+                    gender_value = 'Male'
+                elif any(k in low for k in ('all', 'both', 'any')):
+                    gender_value = 'All'
+                if gender_value != 'NOT_FOUND':
                     break
 
     data["gender"] = gender_value

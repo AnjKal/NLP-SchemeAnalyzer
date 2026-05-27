@@ -395,7 +395,8 @@ export default function Page() {
     setIsEvaluating(true);
     toast({ title: 'Evaluating eligibility…', description: 'Traversing the scheme graph and generating reasoning.' });
     try {
-      const results = await evaluateEligibility(profile);
+      const token = await auth.getIdToken();
+      const results = await evaluateEligibility(profile, token);
       setEligibilityResults(results);
       if (user) {
         const session: Omit<Extract<HistoryItem, { type: 'eligibility' }>, 'id' | 'createdAt'> = {

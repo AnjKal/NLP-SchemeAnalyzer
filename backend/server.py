@@ -15,6 +15,7 @@ load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '..', '.env.loca
 sys.path.insert(0, os.path.dirname(__file__))
 from parser import extract_scheme_data
 from query import fetch_scheme_graph, get_driver, insert_scheme
+from eligibility import check_eligibility
 
 logging.basicConfig(
     level=logging.INFO,
@@ -57,9 +58,39 @@ class GenerateGraphRequest(BaseModel):
     s3_key: str
 
 
+class EligibilityRequest(BaseModel):
+    age: object = ''
+    gender: str = ''
+    state: str = ''
+    locality: str = ''
+    annualIncome: object = ''
+    occupation: str = ''
+    category: str = ''
+    isStudent: bool = False
+    isFarmer: bool = False
+    isMsme: bool = False
+    hasDisability: bool = False
+
+
 @app.get("/health")
 async def health():
     return {"status": "ok", "bucket": AUTHORITIES_BUCKET}
+
+
+@app.post("/check-eligibility")
+async def check_eligibility_endpoint(req: EligibilityRequest):
+    logger.info("check_eligibility_endpoint called — profile=%s", req.model_dump())
+    driver = get_driver()
+    if driver is None:
+        raise HTTPException(status_code=503, detail="Neo4j is not configured — cannot evaluate eligibility")
+    try:
+        results = check_eligibility(req.model_dump(), driver)
+        return results
+    except Exception as exc:
+        logger.exception("check_eligibility failed: %s", exc)
+        raise HTTPException(status_code=500, detail=str(exc))
+    finally:
+        driver.close()
 
 
 @app.post("/generate-graph")
