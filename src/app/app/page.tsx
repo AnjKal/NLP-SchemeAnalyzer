@@ -203,7 +203,7 @@ function AppSidebar({
 function historyTitle(item: HistoryItem): string {
   switch (item.type) {
     case 'eligibility':
-      return `Eligibility check${item.profile.occupation ? ` · ${item.profile.occupation}` : ''}`;
+      return `Eligibility check${item.profile.specialStatus ? ` · ${item.profile.specialStatus}` : item.profile.occupation ? ` · ${item.profile.occupation}` : ''}`;
     case 'graph':
       return `Graph: ${item.document.name}`;
     case 'chat':

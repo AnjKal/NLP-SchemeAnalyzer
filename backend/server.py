@@ -36,6 +36,7 @@ AWS_REGION = os.getenv("AWS_REGION", "us-east-1")
 AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
 AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
 AUTHORITIES_BUCKET = os.getenv("AUTHORITIES_S3_BUCKET")
+WIDOW_SCHEME_S3_KEY = os.getenv("WIDOW_SCHEME_S3_KEY", "special-schemes/widow-scheme.pdf")
 
 logger.info(
     "Server startup — AWS_REGION=%s, AUTHORITIES_S3_BUCKET=%s, "
@@ -65,6 +66,7 @@ class EligibilityRequest(BaseModel):
     locality: str = ''
     annualIncome: object = ''
     occupation: str = ''
+    specialStatus: str = ''
     category: str = ''
     isStudent: bool = False
     isFarmer: bool = False
@@ -77,6 +79,71 @@ async def health():
     return {"status": "ok", "bucket": AUTHORITIES_BUCKET}
 
 
+def _normalize_status(value: str) -> str:
+    return value.strip().lower()
+
+
+def _effective_special_status(profile: dict) -> str:
+    special_status = _normalize_status(str(profile.get("specialStatus", "") or ""))
+    occupation = _normalize_status(str(profile.get("occupation", "") or ""))
+    if special_status:
+        return special_status
+    if occupation in ("widow", "widowed"):
+        return occupation
+    if "widow" in occupation:
+        return "widow"
+    return ""
+
+
+def _load_scheme_from_s3_into_graph(driver, s3_key: str) -> bool:
+    if not AUTHORITIES_BUCKET:
+        logger.warning("AUTHORITIES_S3_BUCKET is not set — cannot preload special scheme %s", s3_key)
+        return False
+
+    logger.info("Preloading special scheme from S3 — bucket=%s, key=%s", AUTHORITIES_BUCKET, s3_key)
+    try:
+        response = s3.get_object(Bucket=AUTHORITIES_BUCKET, Key=s3_key)
+        pdf_bytes = response["Body"].read()
+    except Exception as exc:
+        logger.warning("Special scheme S3 fetch failed (bucket=%s, key=%s): %s", AUTHORITIES_BUCKET, s3_key, exc)
+        return False
+
+    tmp_path = None
+    try:
+        with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as tmp:
+            tmp.write(pdf_bytes)
+            tmp_path = tmp.name
+
+        data = extract_scheme_data(tmp_path)
+        logger.info("Special scheme parsed successfully — name=%r", data.get('name'))
+
+        if driver is not None:
+            with driver.session() as session:
+                session.execute_write(insert_scheme, data, s3_key)
+            logger.info("Special scheme inserted into Neo4j — key=%s", s3_key)
+        return True
+    except Exception as exc:
+        logger.exception("Special scheme preload failed: %s", exc)
+        return False
+    finally:
+        if tmp_path and os.path.exists(tmp_path):
+            os.unlink(tmp_path)
+
+
+def _ensure_special_schemes_loaded(profile: dict, driver) -> None:
+    special_status = _effective_special_status(profile)
+    if special_status == "widow":
+        _load_scheme_from_s3_into_graph(driver, WIDOW_SCHEME_S3_KEY)
+
+
+def _normalize_eligibility_profile(profile: dict) -> dict:
+    normalized = dict(profile)
+    special_status = _effective_special_status(profile)
+    if special_status:
+        normalized["specialStatus"] = special_status
+    return normalized
+
+
 @app.post("/check-eligibility")
 async def check_eligibility_endpoint(req: EligibilityRequest):
     logger.info("check_eligibility_endpoint called — profile=%s", req.model_dump())
@@ -84,7 +151,9 @@ async def check_eligibility_endpoint(req: EligibilityRequest):
     if driver is None:
         raise HTTPException(status_code=503, detail="Neo4j is not configured — cannot evaluate eligibility")
     try:
-        results = check_eligibility(req.model_dump(), driver)
+        profile = _normalize_eligibility_profile(req.model_dump())
+        _ensure_special_schemes_loaded(profile, driver)
+        results = check_eligibility(profile, driver)
         return results
     except Exception as exc:
         logger.exception("check_eligibility failed: %s", exc)

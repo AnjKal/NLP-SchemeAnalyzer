@@ -76,40 +76,45 @@ function extractSchemeData(text: string, fallbackName: string): SchemeData {
 // ─── Graph builder (mirrors backend/query.py build_graph_data) ────────────────
 
 function buildGraph(data: SchemeData, s3Key: string) {
+  // Use a stable prefix derived from the S3 key so that node IDs are unique
+  // across multiple schemes merged into the same graph.
+  const prefix = s3Key.replace(/[^a-zA-Z0-9]/g, '_').slice(-40);
+  const sid = `scheme_${prefix}`;
+
   const nodes: object[] = [
-    { id: 'scheme', label: data.name, kind: 'Scheme', x: 430, y: 250, properties: { source: s3Key, status: 'Active' } },
-    { id: 'state', label: data.state, kind: 'State', x: 700, y: 120, properties: { type: 'State' } },
-    { id: 'category', label: data.category, kind: 'Category', x: 150, y: 120, properties: { category: data.category } },
-    { id: 'gender', label: data.gender, kind: 'Gender', x: 150, y: 390, properties: { gender: data.gender } },
+    { id: sid, label: data.name, kind: 'Scheme', x: 430, y: 250, properties: { source: s3Key, status: 'Active' } },
+    { id: `state_${prefix}`, label: data.state, kind: 'State', x: 700, y: 120, properties: { type: 'State' } },
+    { id: `category_${prefix}`, label: data.category, kind: 'Category', x: 150, y: 120, properties: { category: data.category } },
+    { id: `gender_${prefix}`, label: data.gender, kind: 'Gender', x: 150, y: 390, properties: { gender: data.gender } },
   ];
   const edges: object[] = [
-    { id: 'e1', source: 'scheme', target: 'state', relationship: 'AVAILABLE_IN' },
-    { id: 'e2', source: 'scheme', target: 'category', relationship: 'HAS_CATEGORY' },
-    { id: 'e3', source: 'scheme', target: 'gender', relationship: 'FOR_GENDER' },
+    { id: `e1_${prefix}`, source: sid, target: `state_${prefix}`, relationship: 'AVAILABLE_IN' },
+    { id: `e2_${prefix}`, source: sid, target: `category_${prefix}`, relationship: 'HAS_CATEGORY' },
+    { id: `e3_${prefix}`, source: sid, target: `gender_${prefix}`, relationship: 'FOR_GENDER' },
   ];
 
   if (data.income_limit > 0) {
     nodes.push({
-      id: 'income',
+      id: `income_${prefix}`,
       label: `Income ≤ ₹${data.income_limit.toLocaleString('en-IN')}`,
       kind: 'Eligibility',
       x: 430,
       y: 430,
       properties: { rule: `annual_income <= ${data.income_limit}` },
     });
-    edges.push({ id: 'e4', source: 'scheme', target: 'income', relationship: 'APPLIES_TO' });
+    edges.push({ id: `e4_${prefix}`, source: sid, target: `income_${prefix}`, relationship: 'APPLIES_TO' });
   }
 
   if (data.benefit_amount > 0) {
     nodes.push({
-      id: 'benefit',
+      id: `benefit_${prefix}`,
       label: `₹${data.benefit_amount.toLocaleString('en-IN')} Benefit`,
       kind: 'Benefit',
       x: 700,
       y: 390,
       properties: { amount: `₹${data.benefit_amount.toLocaleString('en-IN')}` },
     });
-    edges.push({ id: 'e5', source: 'scheme', target: 'benefit', relationship: 'HAS_BENEFIT' });
+    edges.push({ id: `e5_${prefix}`, source: sid, target: `benefit_${prefix}`, relationship: 'HAS_BENEFIT' });
   }
 
   return { nodes, edges };
