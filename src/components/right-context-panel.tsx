@@ -75,6 +75,31 @@ export default function RightContextPanel(props: RightContextPanelProps) {
               </div>
             </div>
 
+            {/* Scheme Application Details */}
+            {(result.documentsRequired || result.applicationProcess) && (
+              <>
+                <Separator />
+                
+                {result.documentsRequired && (
+                  <div className="space-y-1">
+                    <p className="text-xs font-semibold text-foreground">Documents Required</p>
+                    <div className="text-xs text-muted-foreground whitespace-pre-line">
+                      {result.documentsRequired}
+                    </div>
+                  </div>
+                )}
+                
+                {result.applicationProcess && (
+                  <div className="space-y-1">
+                    <p className="text-xs font-semibold text-foreground">Application Process</p>
+                    <div className="text-xs text-muted-foreground whitespace-pre-line">
+                      {result.applicationProcess}
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+
             <Separator />
 
             <EligibilityReasoning

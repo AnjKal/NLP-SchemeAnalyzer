@@ -117,6 +117,28 @@ function SchemeCard({
           </div>
         )}
 
+        {/* Documents Required and Application Process */}
+        {(result.documentsRequired || result.applicationProcess) && (
+          <div className="space-y-3 pt-3 border-t">
+            {result.documentsRequired && (
+              <div className="space-y-1">
+                <p className="text-xs font-semibold text-foreground">Documents Required</p>
+                <div className="text-xs text-muted-foreground whitespace-pre-line">
+                  {result.documentsRequired}
+                </div>
+              </div>
+            )}
+            {result.applicationProcess && (
+              <div className="space-y-1">
+                <p className="text-xs font-semibold text-foreground">Application Process</p>
+                <div className="text-xs text-muted-foreground whitespace-pre-line">
+                  {result.applicationProcess}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
         <Collapsible open={open} onOpenChange={setOpen}>
           <div className="flex items-center gap-2">
             <CollapsibleTrigger asChild>

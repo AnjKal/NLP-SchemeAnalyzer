@@ -16,6 +16,71 @@ logger = logging.getLogger('eligibility')
 
 BEDROCK_MODEL_ID = "anthropic.claude-3-haiku-20240307-v1:0"
 
+# ---------------------------------------------------------------------------
+# Scheme details lookup (Application Process / Documents Required)
+# ---------------------------------------------------------------------------
+# These aren't stored in Neo4j. Instead we load them from a JSON file that
+# maps scheme name -> {applicationProcess, documentsRequired}. Matching is
+# case-insensitive on the scheme name. Missing/unmatched schemes simply get
+# empty strings, which the frontend already handles gracefully.
+SCHEME_DETAILS_PATH = os.path.join(os.path.dirname(__file__), 'scheme_details.json')
+
+
+def _normalize_scheme_name(name: str) -> str:
+    """Lowercase, collapse all whitespace (incl. non-breaking spaces/tabs/
+    newlines) to single spaces, and strip. Makes lookups resilient to
+    formatting differences between how a name was typed in the PDF/Neo4j
+    vs. the JSON file."""
+    n = (name or '').replace('\xa0', ' ')
+    n = re.sub(r'\s+', ' ', n).strip().lower()
+    return n
+
+
+def _load_scheme_details() -> dict:
+    """Load the JSON lookup of documentsRequired/applicationProcess per
+    scheme name (normalized, case-insensitive key match). Returns {} on any
+    failure so a missing/corrupt file never breaks eligibility checks."""
+    try:
+        with open(SCHEME_DETAILS_PATH, 'r', encoding='utf-8') as f:
+            raw = json.load(f)
+        normalized = {_normalize_scheme_name(k): v for k, v in raw.items()}
+        logger.info(
+            "Loaded scheme_details.json — %d entries: %s",
+            len(normalized), list(normalized.keys())
+        )
+        return normalized
+    except Exception as exc:
+        logger.warning("Could not load scheme_details.json (path=%s): %s", SCHEME_DETAILS_PATH, exc)
+        return {}
+
+
+_SCHEME_DETAILS = _load_scheme_details()
+
+
+def _get_scheme_details(scheme_name: str) -> dict:
+    """Look up documentsRequired/applicationProcess for a scheme name coming
+    back from Neo4j. Tries an exact normalized match first; if that fails,
+    falls back to a substring match in either direction (handles cases like
+    'PM Kisan Samman Nidhi' vs 'PM Kisan Samman Nidhi Yojana')."""
+    key = _normalize_scheme_name(scheme_name)
+
+    if key in _SCHEME_DETAILS:
+        return _SCHEME_DETAILS[key]
+
+    for stored_key, details in _SCHEME_DETAILS.items():
+        if stored_key in key or key in stored_key:
+            logger.info(
+                "Scheme details fuzzy-matched — neo4j name=%r ~ json key=%r",
+                scheme_name, stored_key
+            )
+            return details
+
+    logger.warning(
+        "No scheme_details match for %r (normalized=%r). Known keys: %s",
+        scheme_name, key, list(_SCHEME_DETAILS.keys())
+    )
+    return {}
+
 
 # ---------------------------------------------------------------------------
 # Occupation-based hard filtering
@@ -219,6 +284,36 @@ def _explain_with_bedrock(profile: dict, scheme: dict, status: str, conditions: 
 
 
 def _match_scheme(profile: dict, scheme: dict, occupation_group, scheme_groups: set) -> dict:
+    # ------------------------------------------------------------------
+    # Hard age check
+    # If age is missing, invalid, or below 18, mark as Not Eligible.
+    # ------------------------------------------------------------------
+    try:
+        age = profile.get("age")
+
+        if age is None or str(age).strip() == "":
+            return {
+                "status": "Not Eligible",
+                "conditions": [],
+                "score": 0
+            }
+
+        age = int(float(age))
+
+        if age < 18:
+            return {
+                "status": "Not Eligible",
+                "conditions": [],
+                "score": 0
+            }
+
+    except (ValueError, TypeError):
+        return {
+            "status": "Not Eligible",
+            "conditions": [],
+            "score": 0
+        }
+
     conditions = []
     score = 0
 
@@ -425,6 +520,8 @@ def check_eligibility(profile: dict, driver) -> list:
 
         scheme_id = scheme['name'].lower().replace(' ', '-').replace('_', '-')
 
+        details = _get_scheme_details(scheme['name'])
+
         results.append({
             'id': scheme_id,
             'schemeName': scheme['name'],
@@ -439,6 +536,8 @@ def check_eligibility(profile: dict, driver) -> list:
             'traversalLogic': traversal_logic,
             'cypherPreview': cypher_preview,
             'aiExplanation': ai_explanation,
+            'documentsRequired': details.get('documentsRequired', ''),
+            'applicationProcess': details.get('applicationProcess', ''),
         })
 
     order = {'Eligible': 0, 'Recommended': 1, 'Not Eligible': 2}

@@ -62,6 +62,9 @@ export type SchemeEligibilityResult = {
   cypherPreview: string;
   // Natural-language summary (would come from Bedrock).
   aiExplanation: string;
+  // Scheme application details
+  documentsRequired?: string;
+  applicationProcess?: string;
 };
 
 // --- Knowledge graph types -------------------------------------------------

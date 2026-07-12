@@ -1,0 +1,26 @@
+{
+  "Shaadi Bhagya Scheme": {
+    "applicationProcess": "• Apply through Karnataka government portal\n• Submit application form\n• Verification by state officials",
+    "documentsRequired": "• Aadhaar Card\n• Residence certificate\n• Income certificate\n• Age proof\n• Bank account details"
+  },
+  "Raitha Siri Scheme": {
+    "applicationProcess": "• Apply through Karnataka agriculture portal\n• Submit application online or at local office\n• Verification by state authorities",
+    "documentsRequired": "• Aadhaar Card\n• Land certificate\n• Income certificate\n• Bank account details\n• Residence proof"
+  },
+  "PM Kisan Samman Nidhi": {
+    "applicationProcess": "• Apply through official government portal or nearest CSC center\n• Fill application form and submit required documents\n• Verification is done by local authorities",
+    "documentsRequired": "• Aadhaar Card\n• Land ownership documents\n• Bank account details\n• Income certificate"
+  },
+  "National Marriage Assistance Scheme": {
+    "applicationProcess": "• Apply through official government portal\n• Submit form and required documents\n• Verification done by authorities",
+    "documentsRequired": "• Aadhaar Card\n• Income certificate\n• Age proof (Birth certificate)\n• Bank account details"
+  },
+  "Widow Pension Scheme (SSP)": {
+    "applicationProcess": "• Apply through Gram One/Karnataka One/Nadakacheri.",
+    "documentsRequired": "• Aadhaar Card\n• Death Certificate of Husband\n• Income Certificate\n• Residence Proof\n• Bank Account Details"
+  },
+  "Farmer Widow Pension Scheme": {
+    "applicationProcess": "• Apply through Agriculture Department/Taluk Office.",
+    "documentsRequired": "• Aadhaar Card\n• Death Certificate\n• Residence Proof\n• Bank Passbook"
+  }
+}
