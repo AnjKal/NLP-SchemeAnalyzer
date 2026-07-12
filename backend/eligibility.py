@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+import re
 
 import boto3
 from dotenv import load_dotenv
@@ -14,6 +15,124 @@ AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
 logger = logging.getLogger('eligibility')
 
 BEDROCK_MODEL_ID = "anthropic.claude-3-haiku-20240307-v1:0"
+
+
+# ---------------------------------------------------------------------------
+# Occupation-based hard filtering
+# ---------------------------------------------------------------------------
+# Some schemes are only meaningful for a specific occupation/life-status
+# (e.g. "Widow"). These are detected by keyword match against the scheme's
+# name/category coming back from Neo4j.
+#
+# Rule:
+#   1. If a scheme's name/category matches one of these keyword groups, the
+#      scheme is "occupation-restricted" to that group. It will ONLY be
+#      returned for citizens whose typed Occupation matches that group.
+#   2. If a citizen's Occupation matches one of these groups (e.g. types
+#      "Widow"), then ONLY schemes restricted to that group are returned —
+#      every generic/unrestricted scheme is excluded too, since it does not
+#      apply to that occupation.
+OCCUPATION_KEYWORDS = {
+    'widow': ['widow', 'vidhava', 'vidhwa'],
+    # Add more exclusive occupation groups here as needed, e.g.:
+    # 'differently abled': ['divyang', 'disability', 'handicap'],
+}
+
+
+_TMP_NAME_RE = re.compile(r'^tmp[a-z0-9]{5,}$', re.IGNORECASE)
+
+
+def _is_junk_scheme_name(name: str) -> bool:
+    """True for placeholder/garbage scheme names that should never be
+    surfaced to the user (e.g. 'NOT_FOUND', 'Unknown Scheme', or an
+    auto-generated temp id like 'tmppskhmx84')."""
+    n = (name or '').strip()
+    if not n:
+        return True
+    if n.upper() in ('NOT_FOUND', 'UNKNOWN', 'UNKNOWN SCHEME', 'NULL', 'NONE'):
+        return True
+    if _TMP_NAME_RE.match(n):
+        return True
+    return False
+
+
+def _matching_occupation_group(occupation: str):
+    """Return the keyword-group key (e.g. 'widow') if the citizen's typed
+    occupation matches one of the exclusive OCCUPATION_KEYWORDS groups,
+    else None."""
+    occupation = (occupation or '').strip().lower()
+    if not occupation:
+        return None
+    for group_key, keywords in OCCUPATION_KEYWORDS.items():
+        if any(kw in occupation for kw in keywords):
+            return group_key
+    return None
+
+
+def _scheme_occupation_groups(scheme: dict) -> set:
+    """Return the set of occupation-group keys this scheme is restricted to,
+    based on its name/category text. Empty set = not occupation-restricted."""
+    name_lower = (scheme.get('name') or '').lower()
+    cat_lower = (scheme.get('category') or '').lower()
+    groups = set()
+    for group_key, keywords in OCCUPATION_KEYWORDS.items():
+        if any(kw in name_lower or kw in cat_lower for kw in keywords):
+            groups.add(group_key)
+    return groups
+
+
+def _occupation_allows_scheme(occupation_group, scheme_groups: set) -> bool:
+    """Decide whether a scheme should even be considered/returned for this
+    citizen, based purely on occupation restriction rules."""
+    if scheme_groups:
+        # Scheme is restricted to specific occupation(s) — only show if the
+        # citizen's occupation matches one of them.
+        return occupation_group in scheme_groups
+    if occupation_group:
+        # Citizen's occupation is an exclusive type (e.g. Widow) but this
+        # scheme carries no occupation tag at all — not applicable.
+        return False
+    return True
+
+
+GENDER_NAME_KEYWORDS = {
+    'female': [
+        'shaadi bhagya', 'shadi bhagya', 'marriage assistance', 'marriage scheme',
+        'vivah sahayata', 'vivah yojana', 'kanyadan', 'kanya vivah', 'bridal assistance',
+        'kanya', 'mahila', 'women', 'girl child', 'beti',
+    ],
+    # Add male-specific name keywords here if such schemes exist.
+    'male': [],
+}
+
+
+def _scheme_effective_gender(scheme: dict) -> str:
+    """Return 'male'/'female' if the scheme should be treated as
+    gender-restricted, else '' (unrestricted). Prefers the explicit graph
+    'gender' field; falls back to name/category keyword matching (e.g.
+    'Shaadi Bhagya', 'Marriage Assistance') for schemes that are
+    conceptually gender-restricted but not tagged as such in Neo4j."""
+    raw = (scheme.get('gender') or '').strip().lower()
+    if raw in ('male', 'female'):
+        return raw
+    name_lower = (scheme.get('name') or '').lower()
+    cat_lower = (scheme.get('category') or '').lower()
+    for g, keywords in GENDER_NAME_KEYWORDS.items():
+        if any(kw in name_lower or kw in cat_lower for kw in keywords):
+            return g
+    return ''
+
+
+def _gender_allows_scheme(citizen_gender: str, scheme_gender: str) -> bool:
+    """Hard filter: if a scheme is restricted to a specific gender (e.g.
+    'Female' for a marriage-assistance/Shaadi Bhagya scheme), only citizens
+    of that gender are eligible. scheme_gender must already be the
+    *effective* gender from _scheme_effective_gender ('male'/'female'/'')."""
+    scheme_gender = (scheme_gender or '').strip().lower()
+    if scheme_gender not in ('male', 'female'):
+        return True
+    citizen_gender = (citizen_gender or '').strip().lower()
+    return citizen_gender == scheme_gender
 
 
 def _bedrock_client():
@@ -46,6 +165,7 @@ def _explain_with_bedrock(profile: dict, scheme: dict, status: str, conditions: 
             f"- Area: {profile.get('locality', 'Not specified')}\n"
             f"- Annual Income: {income_str}\n"
             f"- Category: {profile.get('category', 'Not specified')}\n"
+            f"- Occupation: {profile.get('occupation', 'Not specified')}\n"
             f"- Is Farmer: {profile.get('isFarmer', False)}\n"
             f"- Is Student: {profile.get('isStudent', False)}\n"
             f"- Has Disability: {profile.get('hasDisability', False)}\n"
@@ -86,7 +206,7 @@ def _explain_with_bedrock(profile: dict, scheme: dict, status: str, conditions: 
         return f"The provided details do not establish a qualifying relationship to {name}."
 
 
-def _match_scheme(profile: dict, scheme: dict) -> dict:
+def _match_scheme(profile: dict, scheme: dict, occupation_group, scheme_groups: set) -> dict:
     conditions = []
     score = 0
 
@@ -94,6 +214,14 @@ def _match_scheme(profile: dict, scheme: dict) -> dict:
     gender = (scheme.get('gender') or 'All').strip()
     income_limit = scheme.get('income_limit') or 0
     category = (scheme.get('category') or 'General').strip()
+
+    # Occupation match (only relevant when scheme is occupation-restricted;
+    # by the time we get here, _occupation_allows_scheme has already ensured
+    # any mismatch was filtered out, so a restricted scheme here is a match)
+    if scheme_groups:
+        occ_label = (profile.get('occupation') or '').strip() or occupation_group
+        conditions.append(f"Occupation matches ({occ_label.title()})")
+        score += 3
 
     # State
     if state and state not in ('Unknown State', 'Unknown', 'NOT_FOUND', 'All India', 'All'):
@@ -106,11 +234,16 @@ def _match_scheme(profile: dict, scheme: dict) -> dict:
         score += 1  # no state restriction
 
     # Gender
-    if gender and gender not in ('All', 'NOT_FOUND', ''):
-        if profile.get('gender') == gender:
-            conditions.append(f"Gender matches ({gender})")
+    effective_gender = _scheme_effective_gender(scheme)
+    if effective_gender:
+        if (profile.get('gender') or '').strip().lower() == effective_gender:
+            conditions.append(f"Gender matches ({effective_gender.title()})")
             score += 1
-        # mismatch — no penalty, just no bonus
+        else:
+            # Hard mismatch on a gender-restricted scheme — big penalty so
+            # this can never reach Recommended/Eligible even if the caller
+            # bypassed the check_eligibility-level hard filter.
+            score -= 5
     else:
         score += 1  # no gender restriction
 
@@ -151,7 +284,7 @@ def _match_scheme(profile: dict, scheme: dict) -> dict:
         conditions.append("MSME operator — scheme targets micro/small enterprises")
         score += 3
 
-    total_possible = 10
+    total_possible = 13 if scheme_groups else 10
     pct = score / total_possible
 
     if pct >= 0.50 and len(conditions) >= 2:
@@ -166,6 +299,8 @@ def _match_scheme(profile: dict, scheme: dict) -> dict:
 
 def check_eligibility(profile: dict, driver) -> list:
     logger.info("check_eligibility called — profile=%s", profile)
+
+    occupation_group = _matching_occupation_group(profile.get('occupation'))
 
     try:
         with driver.session() as session:
@@ -196,6 +331,8 @@ def check_eligibility(profile: dict, driver) -> list:
     schemes_by_name: dict = {}
     for record in records:
         name = record.get('name') or 'Unknown Scheme'
+        if _is_junk_scheme_name(name):
+            continue
         if name not in schemes_by_name:
             schemes_by_name[name] = {
                 'name': name,
@@ -208,7 +345,23 @@ def check_eligibility(profile: dict, driver) -> list:
 
     results = []
     for scheme in schemes_by_name.values():
-        match_result = _match_scheme(profile, scheme)
+        scheme_groups = _scheme_occupation_groups(scheme)
+
+        # Hard filter: skip this scheme entirely if occupation rules say it
+        # doesn't apply to this citizen (e.g. widow-only scheme for a
+        # non-widow, or a generic scheme when citizen's occupation is an
+        # exclusive type like "Widow").
+        if not _occupation_allows_scheme(occupation_group, scheme_groups):
+            continue
+
+        # Hard filter: skip this scheme entirely if it's restricted to a
+        # gender the citizen doesn't match (e.g. a marriage-assistance
+        # scheme reserved for Female applicants shown to a Male citizen).
+        effective_gender = _scheme_effective_gender(scheme)
+        if not _gender_allows_scheme(profile.get('gender'), effective_gender):
+            continue
+
+        match_result = _match_scheme(profile, scheme, occupation_group, scheme_groups)
         status = match_result['status']
         conditions = match_result['conditions']
         score = match_result['score']
