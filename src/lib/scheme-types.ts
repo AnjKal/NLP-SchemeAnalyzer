@@ -13,6 +13,7 @@ export type CitizenProfile = {
   locality: Locality | '';
   annualIncome: number | '';
   occupation: string;
+  specialStatus: string;
   category: SocialCategory | '';
   isStudent: boolean;
   isFarmer: boolean;
@@ -27,6 +28,7 @@ export const EMPTY_PROFILE: CitizenProfile = {
   locality: '',
   annualIncome: '',
   occupation: '',
+  specialStatus: '',
   category: '',
   isStudent: false,
   isFarmer: false,

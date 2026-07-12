@@ -1,4 +1,5 @@
 import logging
+import os
 import pdfplumber
 import re
 
@@ -8,6 +9,7 @@ logger = logging.getLogger('parser')
 def extract_scheme_data(pdf_path):
     logger.info("extract_scheme_data — pdf_path=%s", pdf_path)
     data = {}
+    fallback_name = os.path.splitext(os.path.basename(pdf_path))[0].replace('_', ' ').strip() or 'Unknown Scheme'
 
     # Extract full text from PDF
     try:
@@ -34,9 +36,12 @@ def extract_scheme_data(pdf_path):
         return match.group(1).strip() if match else "NOT_FOUND"
 
     # Basic fields
-    data["name"] = safe_extract(r"Scheme Name:\s*(.*)")
-    data["state"] = safe_extract(r"State:\s*(.*)")
-    data["category"] = safe_extract(r"Category:\s*(.*)")
+    name = safe_extract(r"Scheme Name:\s*(.*)")
+    state = safe_extract(r"State:\s*(.*)")
+    category = safe_extract(r"Category:\s*(.*)")
+    data["name"] = fallback_name if name == "NOT_FOUND" else name
+    data["state"] = "Unknown State" if state == "NOT_FOUND" else state
+    data["category"] = "General" if category == "NOT_FOUND" else category
     logger.info("Extracted — name=%r, state=%r, category=%r", data["name"], data["state"], data["category"])
 
     # --------------------------
@@ -61,7 +66,7 @@ def extract_scheme_data(pdf_path):
                 if gender_value != 'NOT_FOUND':
                     break
 
-    data["gender"] = gender_value
+    data["gender"] = "All" if gender_value == "NOT_FOUND" else gender_value
     logger.info("Extracted — gender=%r", data["gender"])
 
     # --------------------------

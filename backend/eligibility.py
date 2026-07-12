@@ -144,6 +144,18 @@ def _bedrock_client():
     )
 
 
+def _effective_special_status(profile: dict) -> str:
+    special_status = (profile.get('specialStatus') or '').strip().lower()
+    occupation = (profile.get('occupation') or '').strip().lower()
+    if special_status:
+        return special_status
+    if occupation in ('widow', 'widowed'):
+        return occupation
+    if 'widow' in occupation:
+        return 'widow'
+    return ''
+
+
 def _explain_with_bedrock(profile: dict, scheme: dict, status: str, conditions: list) -> str:
     try:
         client = _bedrock_client()
@@ -282,6 +294,10 @@ def _match_scheme(profile: dict, scheme: dict, occupation_group, scheme_groups: 
         score += 3
     if profile.get('isMsme') and any(k in name_lower for k in ('msme', 'enterprise', 'pmegp', 'mudra', 'startup')):
         conditions.append("MSME operator — scheme targets micro/small enterprises")
+        score += 3
+    special_status = _effective_special_status(profile)
+    if special_status in ('widow', 'widowed') and any(k in name_lower for k in ('widow', 'widows')):
+        conditions.append("Widow status — scheme targets widowed citizens")
         score += 3
 
     total_possible = 13 if scheme_groups else 10

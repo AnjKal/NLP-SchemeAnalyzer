@@ -196,6 +196,14 @@ export default function SchemeForm({ initialProfile, isLoading, onSubmit }: Sche
             checked={profile.hasDisability}
             onChange={(v) => set('hasDisability', v)}
           />
+          <Field label="Other status" htmlFor="specialStatus">
+            <Input
+              id="specialStatus"
+              placeholder="e.g. widow"
+              value={profile.specialStatus}
+              onChange={(e) => set('specialStatus', e.target.value)}
+            />
+          </Field>
         </div>
       </div>
 
